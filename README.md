@@ -1,2 +1,2 @@
-# pub_upgrader
-A simple dart command line to upgrade your pub packages.
+A sample command-line application with an entrypoint in `bin/`, library code
+in `lib/`, and example unit test in `test/`.
