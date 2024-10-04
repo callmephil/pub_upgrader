@@ -29,7 +29,7 @@ Currently only support dependencies & dev_dependencies.
 
 ## Demo
 
-https://github.com/Flutter-Factories/pub_upgrader/assets/2213079/55b5aed1-d459-452a-b832-88c7075c582e
+https://github.com/callmephil/pub_upgrader/assets/2213079/55b5aed1-d459-452a-b832-88c7075c582e
 
 ## Capabilities
 
@@ -39,5 +39,3 @@ https://github.com/Flutter-Factories/pub_upgrader/assets/2213079/55b5aed1-d459-4
 - [ ] upgrade Web config
 - [ ] upgrade iOS config
 - [ ] upgrade pods
-
-<a href="https://www.buymeacoffee.com/pmakz" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>

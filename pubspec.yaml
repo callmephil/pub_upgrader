@@ -1,5 +1,5 @@
 name: pub_upgrader
-description: A sample command-line application that upgrade all dependencies in your pubspec.yaml file to the latest version.
+description: A command-line that upgrade all dependencies in your pubspec.yaml file to the latest version.
 version: 1.0.0
 repository: https://github.com/callmephil/pub_upgrader
 issue_tracker: https://github.com/callmephil/pub_upgrader/issues
