@@ -7,12 +7,12 @@ void main(List<String> arguments) async {
 
   if (record.dependencies.isNotEmpty) {
     final dep = record.dependencies.split(' ').where(
-          (element) => element.isNotEmpty,
+          (element) => element.isNotEmpty && element != 'sdk',
         );
 
-    print('Dependencies: $dep\n\n');
+    print('Pub Upgrader => Dependencies: $dep\n');
     Process.runSync(
-      'flutter',
+      'dart',
       ['pub', 'add', ...dep],
       runInShell: true,
     );
@@ -23,9 +23,9 @@ void main(List<String> arguments) async {
           (element) => element.isNotEmpty,
         );
 
-    print('Dev Dependencies: $devDep\n');
+    print('Pub Upgrader => Dev Dependencies: $devDep\n');
     Process.runSync(
-      'flutter',
+      'dart',
       ['pub', 'add', '--dev', ...devDep],
       runInShell: true,
     );
