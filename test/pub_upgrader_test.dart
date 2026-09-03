@@ -1,35 +1,91 @@
-import 'dart:io';
-
 import 'package:pub_upgrader/pub_upgrader.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('can_match_getDependencies', () {
-    final file = File('pubspec.yaml');
-    var dependencies = '';
-    var devDependencies = '';
-    var devFlag = 0;
-    final lines = file.readAsLinesSync();
-    for (final line in lines) {
-      if (line.startsWith('dev_dependencies')) {
-        devFlag = 1;
-        continue;
-      }
-      final regex = RegExp(r'^([\sa-zA-Z0-9_]+)(?=: *\^)');
-      final match = regex.firstMatch(line);
-      if (match != null) {
-        final dependency = match.group(1);
-        if (devFlag == 0) {
-          dependencies += '$dependency ';
-        } else {
-          devDependencies += '$dependency ';
-        }
-      }
-    }
+  group('parseOutdated', () {
+    test('splits sections and keeps only exact pins out of the upgrade set',
+        () {
+      const raw = '''
+Direct dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+intl          *0.18.1  *0.18.1     0.19.0      0.19.0
+path          1.9.0    1.9.0       1.10.0     1.10.0
 
-    expect(
-      getDependencies(),
-      (dependencies: dependencies, devDependencies: devDependencies),
-    );
+Dev dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+test          *1.24.0  *1.24.0     1.25.0      1.25.0
+mocktail      1.0.0    1.0.0       1.0.0      1.1.0
+
+Transitive dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+meta          1.12.0   1.12.0      1.13.0     1.13.0
+
+Transitive dev_dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+pool          1.6.0    1.6.0       1.7.0      1.7.0
+
+Dependency overrides:
+Package Name  Current  Upgradable  Resolvable  Latest
+sealed_unions *0.5.0 *0.5.0 0.6.0 0.6.0
+''';
+
+      final parsed = parseOutdated(raw, declaredConstraints: {
+        'intl': '^0.18.0',
+        'path': '^1.9.0',
+        'test': '^1.24.0',
+        'mocktail': '1.0.0',
+      });
+
+      expect(parsed.direct.map((row) => row.name), ['intl', 'path']);
+      expect(parsed.dev.map((row) => row.name), ['test']);
+      expect(parsed.transitive.map((row) => row.name), ['meta', 'pool']);
+      expect(parsed.pinned.map((row) => row.name), ['mocktail']);
+    });
+
+    test('caret ranges are not treated as pinned in pubspec.yaml', () {
+      const raw = '''
+Dev dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+lints        6.1.0    6.1.0      6.1.0      6.1.0
+''';
+
+      final parsed = parseOutdated(raw, declaredConstraints: {
+        'lints': '^6.1.0',
+      });
+
+      expect(parsed.dev.map((row) => row.name), ['lints']);
+      expect(parsed.pinned, isEmpty);
+    });
+
+    test('exact pins remain pinned even when the package is still upgradeable',
+        () {
+      const raw = '''
+Direct dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+http         0.13.0   0.14.0      0.13.0      0.14.0
+''';
+
+      final parsed = parseOutdated(raw, declaredConstraints: {
+        'http': '0.13.0',
+      });
+
+      expect(parsed.direct.map((row) => row.name), isEmpty);
+      expect(parsed.pinned.map((row) => row.name), ['http']);
+    });
+
+    test('overridden packages are ignored instead of upgraded', () {
+      const raw = '''
+Dev dependencies:
+Package Name  Current  Upgradable  Resolvable  Latest
+lints        *6.1.0 (overridden)  *6.1.0 (overridden)  *6.1.0 (overridden)  6.1.0
+''';
+
+      final parsed = parseOutdated(raw, declaredConstraints: {
+        'lints': '^6.1.0',
+      });
+
+      expect(parsed.dev, isEmpty);
+      expect(parsed.pinned, isEmpty);
+    });
   });
 }
