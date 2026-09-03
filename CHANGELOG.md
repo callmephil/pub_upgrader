@@ -14,3 +14,7 @@
 
 - Re-designed the package to be a global executable instead
 - Implement better parsing and support case for overridden dependencies
+
+## 2.0.1
+
+- Update Readme.md
