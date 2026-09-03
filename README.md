@@ -1,4 +1,4 @@
-This package upgrades your `pubspec.yaml` dependencies versions.
+This package safely updates `pubspec.yaml` dependencies to compatible versions by taking advantage of `dart pub add`.
 
 ## Installation
 
@@ -16,12 +16,14 @@ pub_upgrader
 
 ## How It Works
 
-The code will match the following patterns and will exclude anything else.
+`pub_upgrader` updates dependencies while trying to keep your project in a compatible state.
 
-```yaml
-package: ^..
-package_with_underscore: ^..
-```
+It:
+
+- uses `dart pub add` to resolve versions
+- respects locked package versions
+- avoids incompatible version combinations
+- handles overridden dependencies
 
 ## Demo
 
