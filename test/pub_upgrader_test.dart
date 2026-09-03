@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:pub_upgrader/pub_upgrader.dart';
 import 'package:test/test.dart';
-import 'dart:io';
 
 void main() {
   group('parseOutdated', () {
