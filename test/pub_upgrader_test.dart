@@ -1,5 +1,6 @@
 import 'package:pub_upgrader/pub_upgrader.dart';
 import 'package:test/test.dart';
+import 'dart:io';
 
 void main() {
   group('parseOutdated', () {
@@ -86,6 +87,41 @@ lints        *6.1.0 (overridden)  *6.1.0 (overridden)  *6.1.0 (overridden)  6.1.
 
       expect(parsed.dev, isEmpty);
       expect(parsed.pinned, isEmpty);
+    });
+  });
+
+  group('readDeclaredDependencyConstraints', () {
+    test('keeps parsing dev constraints after map-style sdk entries', () {
+      final dir = Directory.systemTemp.createTempSync('pub_upgrader_test_');
+      final previous = Directory.current;
+
+      try {
+        Directory.current = dir;
+        File('pubspec.yaml').writeAsStringSync('''
+name: sample
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  http: ^1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.1.0
+  mocktail:
+    version: ^1.0.4
+''');
+
+        final constraints = readDeclaredDependencyConstraints();
+        expect(constraints['http'], '^1.2.0');
+        expect(constraints['flutter_test'], 'sdk');
+        expect(constraints['lints'], '^6.1.0');
+        expect(constraints['mocktail'], '^1.0.4');
+      } finally {
+        Directory.current = previous;
+        dir.deleteSync(recursive: true);
+      }
     });
   });
 }

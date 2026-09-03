@@ -18,3 +18,7 @@
 ## 2.0.1
 
 - Update Readme.md
+
+## 2.0.2
+
+- Fixed dev dependencies not updating

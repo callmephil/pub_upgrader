@@ -197,32 +197,83 @@ Map<String, String> readDeclaredDependencyConstraints() {
   if (!file.existsSync()) return const {};
 
   final constraints = <String, String>{};
-  Object? section;
+  String? section;
+  int? sectionIndent;
+  String? currentDependency;
+  int? currentDependencyIndent;
 
-  for (final line in file.readAsLinesSync()) {
+  for (final rawLine in file.readAsLinesSync()) {
+    final line = rawLine.split('#').first;
     final trimmed = line.trim();
     if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
 
-    if (trimmed == 'dependencies:' || trimmed == 'dev_dependencies:') {
-      section = trimmed.substring(0, trimmed.length - 1);
-      continue;
-    }
+    final indent = line.length - line.trimLeft().length;
+    final topLevelMatch = RegExp(r'^([A-Za-z0-9_]+):\s*$').firstMatch(trimmed);
 
-    if (trimmed.endsWith(':') &&
-        trimmed != 'dependencies:' &&
-        trimmed != 'dev_dependencies:') {
+    if (indent == 0 && topLevelMatch != null) {
+      final key = topLevelMatch.group(1)!;
+      if (key == 'dependencies' || key == 'dev_dependencies') {
+        section = key;
+        sectionIndent = indent;
+        currentDependency = null;
+        currentDependencyIndent = null;
+        continue;
+      }
+
       section = null;
+      sectionIndent = null;
+      currentDependency = null;
+      currentDependencyIndent = null;
       continue;
     }
 
-    if (section == null) continue;
+    if (section == null || sectionIndent == null) continue;
 
-    final match = RegExp(r'^([A-Za-z0-9_]+)\s*:\s*(.+)$').firstMatch(trimmed);
+    if (indent <= sectionIndent) {
+      section = null;
+      sectionIndent = null;
+      currentDependency = null;
+      currentDependencyIndent = null;
+      continue;
+    }
+
+    final match = RegExp(r'^([A-Za-z0-9_]+)\s*:\s*(.*)$').firstMatch(trimmed);
     if (match == null) continue;
 
     final name = match.group(1)!;
     final value = match.group(2)!.trim();
-    if (value.isNotEmpty) {
+
+    final isTopLevelDependencyEntry = indent == sectionIndent + 2;
+    if (isTopLevelDependencyEntry) {
+      currentDependency = name;
+      currentDependencyIndent = indent;
+
+      if (value.isNotEmpty) {
+        constraints[name] = value;
+      }
+      continue;
+    }
+
+    final isNestedForCurrentDependency = currentDependency != null &&
+        currentDependencyIndent != null &&
+        indent > currentDependencyIndent;
+    if (!isNestedForCurrentDependency) continue;
+
+    final dependencyName = currentDependency;
+
+    // Dependency maps can declare a version under the `version` key.
+    if (name == 'version' && value.isNotEmpty) {
+      constraints[dependencyName] = value;
+      continue;
+    }
+
+    // Keep sdk/flutter markers explicit so they are treated as non-pinned.
+    if ((name == 'sdk' || name == 'flutter') && value.isNotEmpty) {
+      constraints[dependencyName] = name;
+      continue;
+    }
+
+    if (value.isNotEmpty && currentDependency == name) {
       constraints[name] = value;
     }
   }
