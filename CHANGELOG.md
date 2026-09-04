@@ -22,3 +22,7 @@
 ## 2.0.2
 
 - Fixed dev dependencies not updating
+
+## 2.0.3
+
+- Added Code Documentation (Gemini)
