@@ -8,7 +8,7 @@ Install it globally with Dart:
 dart pub global activate pub_upgrader
 ```
 
-Then run it from anywhere:
+Then run it from the root of your project:
 
 ```sh
 pub_upgrader
