@@ -1,3 +1,9 @@
+/// Public API for upgrading Dart package dependencies from `pubspec.yaml`.
+///
+/// Import this library to parse `dart pub outdated` output or run the full
+/// dependency upgrade flow used by the `pub_upgrader` executable.
+library;
+
 import 'dart:io';
 
 import 'package:pub_upgrader/src/models/parsed_deps.dart';

@@ -23,6 +23,12 @@
 
 - Fixed dev dependencies not updating
 
+## 2.0.4
+
+- Added package example at `example/main.dart` to satisfy pub package layout guidance.
+- Added test coverage for the example output in `test/example_main_test.dart`.
+- Added top-level public API documentation for `pub_upgrader` library.
+
 ## 2.0.3
 
 - Added Code Documentation (Gemini)
