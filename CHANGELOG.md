@@ -1,3 +1,7 @@
+## 2.0.5
+
+- Reordering CHANGELOG.md
+
 ## 2.0.4
 
 - Added package example at `example/main.dart` to satisfy pub package layout guidance.
